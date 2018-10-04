@@ -1,0 +1,11 @@
+.tmp_versions/
+.flow.o.cmd
+.nf_app.o.cmd
+.ubnt_*
+ubnt_nf_app.mod.c
+
+*.o
+*.ko
+
+Module.symvers
+modules.order
