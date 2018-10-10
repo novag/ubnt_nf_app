@@ -26,6 +26,10 @@ typedef struct {
 	uint8_t dpi_final;
 	uint8_t dpi_cat;
 	uint16_t dpi_app;
+
+	unsigned char mac_addr[6];
+	char ifname[16];
+
 	uint16_t magic;
 } export_flow_t;
 

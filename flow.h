@@ -44,8 +44,12 @@ typedef struct {
 	// word4
 	uint32_t tx_saddr;
 	uint32_t tx_daddr;
-        // word5
+	// word5
 	uint16_t tx_dport;
+	unsigned char mac_addr[6];
+	// word6
+	char ifname[16];
+
 } flow_t;
 
 #define FLOW_BUCKETS         8192

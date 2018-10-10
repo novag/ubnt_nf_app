@@ -275,6 +275,9 @@ static flow_t *find_entry(struct sk_buff *skb)
 	entry->dport = dport;
 	entry->proto = proto;
 
+	memcpy(entry->mac_addr, SKB_ETH(skb)->h_source, 6);
+	strncpy(entry->ifname, skb->dev->name, 16);
+
 found:
 	if (entry->tx_saddr == 0) {
 		check_ct(skb, entry);
@@ -500,6 +503,10 @@ static void flow_export_it(flow_t * entry, export_flow_t * f)
 	f->dpi_cat = entry->dpi_cat;
 	f->dpi_app = entry->dpi_app;
 #endif
+
+	memcpy(f->mac_addr, entry->mac_addr, 6);
+	strncpy(f->ifname, entry->ifname, 16);
+
 	f->magic = EXPORT_MAGIC;
 }
 
