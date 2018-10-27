@@ -2,6 +2,7 @@
 #define UBNT_NF_APP_FLOW_H_
 
 #include <linux/hashtable.h>
+#include <uapi/linux/if_arp.h>
 
 typedef struct {
 	atomic_t packets;
@@ -83,5 +84,20 @@ typedef struct {
 extern int flow_init(struct proc_dir_entry *nf_dpi_proc_dir);
 extern void flow_exit(struct proc_dir_entry *nf_dpi_proc_dir);
 extern int update_flow(struct sk_buff *skb);
+
+static inline bool dev_is_mac_header_xmit(const struct net_device *dev)
+{
+	switch (dev->type) {
+	case ARPHRD_TUNNEL:
+	case ARPHRD_TUNNEL6:
+	case ARPHRD_SIT:
+	case ARPHRD_IPGRE:
+	case ARPHRD_VOID:
+	case ARPHRD_NONE:
+		return false;
+	default:
+		return true;
+	}
+}
 
 #endif /* UBNT_NF_APP_FLOW_H_ */

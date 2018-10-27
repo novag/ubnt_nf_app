@@ -191,6 +191,7 @@ static flow_t *find_entry(struct sk_buff *skb)
 	uint32_t hash_key, lru_timestamp;
 	struct iphdr *ip;
 	struct timeval tv;
+	struct neighbour *neigh;
 	int i, bucket_idx, free_entry, lru;
 
 	eth_type = ntohs(skb->protocol);
@@ -275,7 +276,6 @@ static flow_t *find_entry(struct sk_buff *skb)
 	entry->dport = dport;
 	entry->proto = proto;
 
-	memcpy(entry->mac_addr, SKB_ETH(skb)->h_source, 6);
 	strncpy(entry->ifname, skb->dev->name, 16);
 
 found:
@@ -283,6 +283,23 @@ found:
 		check_ct(skb, entry);
 	}
 	entry->timestamp = tv.tv_sec;
+
+	if (entry->mac_addr[0] == 0 && entry->mac_addr[1] == 0 &&
+		entry->mac_addr[2] == 0 && entry->mac_addr[3] == 0 &&
+		entry->mac_addr[4] == 0 && entry->mac_addr[5] == 0) {
+		if (!dev_is_mac_header_xmit(skb->dev)) {
+			neigh = dst_neigh_lookup(skb_dst(skb), &SKB_IP(skb)->daddr);
+			if (neigh == NULL) {
+				printk("Error: ARP entry not found\n");
+				memcpy(entry->mac_addr, SKB_ETH(skb)->h_source, ETH_ALEN);
+			} else {
+				memcpy(entry->mac_addr, neigh->ha, ETH_ALEN);
+				neigh_release(neigh);
+			}
+		} else {
+			memcpy(entry->mac_addr, SKB_ETH(skb)->h_source, ETH_ALEN);
+		}
+	}
 
 	return entry;
 }
